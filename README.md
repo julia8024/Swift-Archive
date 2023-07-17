@@ -13,6 +13,7 @@ SwiftUI 공식문서 파헤치기 | 프리온보딩 iOS 챌린지 8월
 
 
 ## 사전과제
+[사전과제 결과물 보러가기](https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/blob/main/pre-assignment/pre-assignment.md)
 - 이 사전과제는 별도의 제출이 없습니다
 - 사전 과제는 챌린지를 준비하며 스스로의 학습 수준을 점검하기 위한 용도입니다.
 - 학습 커리큘럼은 사전 과제를 기반으로 내용이 구성되어 있습니다.
