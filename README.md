@@ -1,6 +1,17 @@
 # pre-onboarding-iOS-challenge-Aug
 SwiftUI 공식문서 파헤치기 | 프리온보딩 iOS 챌린지 8월
 
+<br>
+  
+<details>
+<summary><h3>🗂️ 목차</h3></summary>
+<div markdown="1">
+  
+  &emsp; [사전과제](#사전과제)<br>
+</div>
+</details>
+
+
 ## 사전과제
 - 이 사전과제는 별도의 제출이 없습니다
 - 사전 과제는 챌린지를 준비하며 스스로의 학습 수준을 점검하기 위한 용도입니다.
