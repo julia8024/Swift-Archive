@@ -1,14 +1,30 @@
-# 사전과제
+### 사전과제
 [SwiftUI Tutorial-developer.apple.com](https://developer.apple.com/tutorials/swiftui)
 
+<hr>
+
+### 🗂️ 목차<br>
+[Creating and Combining Views](#-creating-and-combining-views)<br>
+  &emsp;&emsp;[Section 1 - Create a New Project and Explore the Canvas](#section-1---create-a-new-project-and-explore-the-canvas)<br>
+  &emsp;&emsp;[Section 2 - Customize the Text View](#section-2---customize-the-text-view)<br>
+  &emsp;&emsp;[Section 3 - Combine Views Using Stacks](#section-3---combine-views-using-stacks)<br>
+  &emsp;&emsp;[Section 4 - Create a Custom Image View](#section-4---create-a-custom-image-view)<br>
+  &emsp;&emsp;[Section 5 - Using SwiftUI Views From Other Frameworks](#section-5---using-swiftui-views-from-other-frameworks)<br>
+  &emsp;&emsp;[Section 6 - Compose the Detail View](#section-6---compose-the-detail-view)<br><br>
+[Building Lists and Navigation](#-building-lists-and-navigation)<br>
+
+<hr>
 <br>
 
-## Chapter 1 - SwiftUI Essentials
+
+# Chapter 1 - SwiftUI Essentials
 
 🖊️ 프로젝트 명 : Landmarks
 
 
 <br>
+
+## 👩🏻‍💻 Creating and Combining Views
 
 ### Section 1 - Create a New Project and Explore the Canvas
 - An app that uses the SwiftUI app life cycle has a structure that conforms to the App protocol. The structure’s body property returns one or more scenes, which in turn provide content for display. The `@main` attribute identifies the app’s entry point.<br>-<br>
@@ -149,3 +165,9 @@ struct ContentView: View {
     }
 }
 ```
+
+## 👩🏻‍💻 Building Lists and Navigation
+
+### Section 1 - Create a Landmark Model
+
+
