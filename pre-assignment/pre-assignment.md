@@ -49,6 +49,7 @@ SwiftUI 앱 수명 주기를 사용하는 앱은 앱 프로토콜을 준수하�
 - Spacer()로 두개의 Text 사이에 여백을 최대로 둠
 <br>
 
+> ContentView.swift
 ```Swift
 VStack(alignment: .leading) {
                 
@@ -71,6 +72,7 @@ VStack(alignment: .leading) {
 <img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/a8758d6c-a9ae-4f42-a2ca-18eb7f6ec9bc" width="20%">
 <br><br>
 
+> CircleImage.swift
 ```Swift
 struct CircleImage: View {
     var body: some View {
@@ -98,7 +100,7 @@ struct CircleImage: View {
 <img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/792e0b14-ddb7-4b10-a6e5-0bee65797112" width="20%">
 <br><br>
 
-
+> MapView.swift
 ```Swift
 import MapKit
 
@@ -122,6 +124,7 @@ struct MapView: View {
 <img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/37173bcd-ce47-4ec1-b568-23962b9f8000" width="20%">
 <br><br>
 
+> ContentView.swift
 ```Swift
 struct ContentView: View {
     var body: some View {
@@ -169,5 +172,248 @@ struct ContentView: View {
 ## 👩🏻‍💻 Building Lists and Navigation
 
 ### Section 1 - Create a Landmark Model
+- `landmarkData.json` 파일 추가 (Drag&Drop)
+<img width="500" alt="스크린샷 2023-07-19 오전 10 26 23" src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/c1ffa2ec-6d0d-4ae6-931f-f65564f7620b">
+<br><br>
 
+- Adding Codable conformance makes it easier to move data between the structure and a data file. You’ll rely on the Decodable component of the Codable protocol later in this section to read data from file.
+<br>-<br>
+Codable 적합성을 추가하면 구조와 데이터 파일 간에 데이터를 더 쉽게 이동할 수 있습니다. 파일에서 데이터를 읽으려면 이 섹션의 뒷부분에서 Codable 프로토콜의 Decodable 구성 요소에 의존합니다.
 
+> Landmark.swift
+```Swift
+import Foundation
+import SwiftUI
+import CoreLocation
+
+struct Landmark: Codable, Hashable {
+    var id: Int
+    var name: String
+    var park: String
+    var state: String
+    var description: String
+    
+    private var imageName: String
+    var image: Image {
+        Image(imageName)
+    }
+    
+    
+    private var coordinates: Coordinates
+
+    // locationCoordinate - MapKit 프레임워크와 상호 작용
+    var locationCoordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(
+            latitude: coordinates.latitude,
+            longitude: coordinates.longitude)
+    }
+    
+    // 좌표 속성 추가
+    struct Coordinates: Hashable, Codable {
+        var latitude: Double
+        var longitude: Double
+    }
+    
+}
+```
+
+<br>
+
+- The load method relies on the return type’s conformance to the Decodable protocol, which is one component of the Codable protocol.<br>-<br>
+로드 방법은 Codable 프로토콜의 한 구성 요소인 Decodable 프로토콜에 대한 반환 유형의 적합성에 의존합니다.
+
+> ModelData.swift
+```Swift
+import Foundation
+
+var landmarks: [Landmark] = load("landmarkData.json")
+
+// 주어진 이름으로 JSON 데이터를 가져오는 메서드
+func load<T: Decodable>(_ filename: String) -> T {
+    let data: Data
+    
+    guard let file = Bundle.main.url(forResource: filename, withExtension: nil)
+    else {
+        fatalError("Couldn't find \(filename) in main bundle.")
+    }
+    
+    do {
+        data = try Data(contentsOf: file)
+    } catch {
+        fatalError("Couldn't load \(filename) from main bundle:\n\(error)")
+    }
+    
+    do {
+        let decoder = JSONDecoder()
+        return try decoder.decode(T.self, from: data)
+    } catch {
+        fatalError("Couldn't parse \(filename) as \(T.self):\n\(error)")
+    }
+}
+```
+
+<br>
+
+- 파일 정리 및 그룹화
+<img width="268" alt="스크린샷 2023-07-19 오전 11 05 24" src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/d5b251fa-e219-4440-9f00-c8b6cc1985e3">
+
+<br><br>
+
+### Section 2 - Create the Row View
+- When you add the landmark property, the preview stops working, because the LandmarkRow type needs a landmark instance during initialization.
+  <br>-<br>
+  랜드마크 속성을 추가하면 LandmarkRow 유형에 초기화 중에 랜드마크 인스턴스가 필요하기 때문에 미리보기가 작동을 멈춥니다.
+<br>
+
+- In the previews static property of `LandmarkRow_Previews`, add the landmark parameter to the `LandmarkRow` initializer, specifying the first element of the landmarks array.
+  <br>-<br>
+  `LandmarkRow_Previews`의 미리보기 정적 속성에서 `LandmarkRow` 이니셜라이저에 랜드마크 매개 변수를 추가하여 랜드마크 배열의 첫 번째 요소를 지정합니다.
+
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/21ee8394-524a-4fd2-85ce-42c5244e10e1" width="20%">
+<br><br>
+
+> LandmarkRow.swift
+```Swift
+import SwiftUI
+
+struct LandmarkRow: View {
+    
+    var landmark: Landmark
+    
+    var body: some View {
+        HStack {
+            landmark.image
+                .resizable()
+                .frame(width: 50, height: 50)
+            Text(landmark.name)
+
+            Spacer()
+        }
+    }
+}
+
+struct LandmarkRow_Previews: PreviewProvider {
+    static var previews: some View {
+        LandmarkRow(landmark: landmarks[0])
+    }
+}
+```
+
+<br>
+
+### Section 3 - Customize the Row Preview
+- Group is a container for grouping view content. Xcode renders the group’s child views as separate previews in the canvas.
+  <br>-<br>
+  Group은 보기 콘텐츠를 그룹화하기 위한 컨테이너입니다. Xcode는 그룹의 하위 뷰를 캔버스에서 별도의 미리보기로 렌더링합니다.
+
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/e1f2d97a-db8c-4e32-96bd-fab0c48e8f5b" width="30%">
+<br><br>
+
+> LandmarkRow.swift
+```Swift
+struct LandmarkRow_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            LandmarkRow(landmark: landmarks[0])
+                .previewLayout(.fixed(width: 300, height: 70))
+            LandmarkRow(landmark: landmarks[1])
+                .previewLayout(.fixed(width: 300, height: 70))
+        }
+    }
+}
+```
+
+- A view’s children inherit the view’s contextual settings, such as preview configurations.
+  <br>-<br>
+  view의 자식은 미리 보기 구성과 같은 보기의 컨텍스트 설정을 상속합니다.
+> LandmarkRow.swift
+```Swift
+struct LandmarkRow_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            LandmarkRow(landmark: landmarks[0])
+            LandmarkRow(landmark: landmarks[1])
+        }
+        .previewLayout(.fixed(width: 300, height: 70))
+    }
+}
+```
+
+<br>
+
+### Section 4 - Create the List of Landmarks
+- 리스트로 LandmarkRow 2개 띄워보기
+
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/bca32582-32e7-42f7-bb76-b513fd2f003c" width="20%">
+<br><br>
+
+> LandmarkList.swift
+```Swift
+import SwiftUI
+
+struct LandmarkList: View {
+    var body: some View {
+        List {
+            LandmarkRow(landmark: landmarks[0])
+            LandmarkRow(landmark: landmarks[1])
+        }
+    }
+}
+
+struct LandmarkList_Previews: PreviewProvider {
+    static var previews: some View {
+        LandmarkList()
+    }
+}
+```
+
+<br>
+
+### Section 5 - Make the List Dynamic
+
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/828866ba-b7ce-409f-81b6-d411b5474f1a" width="20%">
+<br>
+
+- Lists work with `identifiable data`. You can make your data identifiable in one of two ways: by passing along with your data a key path to a property that uniquely identifies each element, or by making your data type conform to the `Identifiable` protocol.
+  <br>-<br>
+  List는 `식별 가능한 데이터`로 작동합니다. 두 가지 방법 중 하나로 데이터를 식별 가능하게 만들 수 있습니다. 데이터와 함께 각 요소를 고유하게 식별하는 속성에 대한 키 경로를 전달하거나 데이터 유형이 `Identifiable` 프로토콜을 준수하도록 합니다.
+
+> LandmarkList.swift
+```Swift
+import SwiftUI
+
+struct LandmarkList: View {
+    var body: some View {
+        List(landmarks, id: \.id) { landmark in
+            LandmarkRow(landmark: landmark)
+        }
+    }
+}
+```
+
+<br>
+
+- The Landmark data already has the id property required by Identifiable protocol; you only need to add a property to decode it when reading the data.
+  <br>-<br>
+  Landmark 데이터에는 Identifiable 프로토콜에 필요한 id 속성이 이미 있습니다. 데이터를 읽을 때 디코딩할 속성만 추가하면 됩니다.
+
+> Landmark.swift
+```Swift
+struct Landmark: Codable, Hashable, Identifiable {
+  ...
+}
+```
+
+<br>
+
+- remove id parameter
+> LandmarkList.swift
+```Swift
+struct LandmarkList: View {
+    var body: some View {
+        List(landmarks) { landmark in
+            LandmarkRow(landmark: landmark)
+        }
+    }
+}
+```
