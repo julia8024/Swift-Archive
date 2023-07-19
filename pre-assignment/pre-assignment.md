@@ -11,11 +11,19 @@
   &emsp;&emsp;[Section 4 - Create a Custom Image View](#section-4---create-a-custom-image-view)<br>
   &emsp;&emsp;[Section 5 - Using SwiftUI Views From Other Frameworks](#section-5---using-swiftui-views-from-other-frameworks)<br>
   &emsp;&emsp;[Section 6 - Compose the Detail View](#section-6---compose-the-detail-view)<br><br>
+  
 [Building Lists and Navigation](#-building-lists-and-navigation)<br>
-
+  &emsp;&emsp;[Section 1 - Create a Landmark Model](#section-1---create-a-landmark-model)<br>
+  &emsp;&emsp;[Section 2 - Create the Row View](#section-2---create-the-row-view)<br>
+  &emsp;&emsp;[Section 3 - Customize the Row Preview](#section-3---customize-the-row-preview)<br>
+  &emsp;&emsp;[Section 4 - Create the List of Landmarks](#section-4---create-the-list-of-landmarks)<br>
+  &emsp;&emsp;[Section 5 - Make the List Dynamic](#section-5---make-the-list-dynamic)<br>
+  &emsp;&emsp;[Section 6 - Set Up Navigation Between List and Detail](#section-6---set-up-navigation-between-list-and-detail)<br>
+  &emsp;&emsp;[Section 7 - Pass Data into Child Views](#section-7---pass-data-into-child-views)<br>
+  &emsp;&emsp;[Section 8 - Generate Previews Dynamically](#section-8---generate-previews-dynamically)<br>
+  
 <hr>
 <br>
-
 
 # Chapter 1 - SwiftUI Essentials
 
@@ -359,12 +367,6 @@ struct LandmarkList: View {
         }
     }
 }
-
-struct LandmarkList_Previews: PreviewProvider {
-    static var previews: some View {
-        LandmarkList()
-    }
-}
 ```
 
 <br>
@@ -413,6 +415,248 @@ struct LandmarkList: View {
     var body: some View {
         List(landmarks) { landmark in
             LandmarkRow(landmark: landmark)
+        }
+    }
+}
+```
+
+### Section 6 - Set Up Navigation Between List and Detail
+
+
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/8bd6ca17-ef2c-4401-a6e2-82c1e5d819ae" width="20%">
+
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/b4d7dce4-507d-4570-bff4-2d48805a434f" width="20%">
+<br>
+
+- ContentView의 코드를 LandmarkDetail.swift로 옮기고, ContentView는 LandmarkList() 띄우기
+
+> LandmarkDetail.swift
+```Swift
+struct LandmarkDetail: View {
+    var body: some View {
+        VStack{
+            
+            MapView()
+                .ignoresSafeArea(edges: .top)
+                .frame(height: 300)
+            
+            CircleImage()
+                .offset(y: -130)
+                .padding(.bottom, -130)
+            
+            VStack(alignment: .leading) {
+                
+                Text("Turtle Rock")
+                    .font(.title)
+                HStack {
+                    Text("Joshua Tree National Park")
+                        .font(.subheadline)
+                    Spacer()
+                    Text("California")
+                        .font(.subheadline)
+                }
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                
+                Divider()
+
+                Text("About Turtle Rock")
+                    .font(.title2)
+                Text("Descriptive text goes here.")
+                
+                
+            }
+            .padding()
+            
+            
+            Spacer()
+        }
+    }
+}
+```
+
+<br>
+
+> ContentView.swift
+```Swift
+struct ContentView: View {
+    var body: some View {
+        LandmarkList()
+    }
+}
+```
+
+<br>
+
+- LandmarkList.swift에 NavigationView 추가
+
+> LandmarkList.swift
+```Swift
+struct LandmarkList: View {
+    var body: some View {
+        NavigationView {
+            List(landmarks, id: \.id) { landmark in
+                NavigationLink {
+                    LandmarkDetail()
+                } label: {
+                    LandmarkRow(landmark: landmark)
+                }
+            }
+        }
+        .navigationTitle("Landmarks")
+    }
+}
+```
+
+<br>
+
+### Section 7 - Pass Data into Child Views
+
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/5f0d9ddd-4867-4218-9a9b-bd568fba92fd" width="20%">
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/c99b0899-c4a1-42ad-ad44-9f0ed2f28724" width="20%">
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/e1d24f84-041a-4bef-a955-ec38caab6798" width="20%">
+<br><br>
+
+- CircleImage와 MapView에서 선택된 장소의 정보로 데이터가 변경될 수 있도록 코드 수정
+> CircleImage.swift
+```Swift
+struct CircleImage: View {
+    var image: Image
+    
+    var body: some View {
+        image
+            ...
+    }
+}
+
+struct CircleImage_Previews: PreviewProvider {
+    static var previews: some View {
+        CircleImage(image: Image("turtlerock"))
+    }
+}
+```
+
+<br>
+
+> MapView.swift
+```Swift
+struct MapView: View {
+    
+    var coordinate: CLLocationCoordinate2D
+    @State private var region = MKCoordinateRegion()
+
+    var body: some View {
+        
+        Map(coordinateRegion: $region)
+            .onAppear {
+                setRegion(coordinate)
+            }
+    }
+    
+    // 좌표 값을 기반으로 지역을 업데이트하는 메서드
+    private func setRegion(_ coordinate: CLLocationCoordinate2D) {
+        region = MKCoordinateRegion(
+            center: coordinate,
+            span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
+        )
+    }
+    
+}
+
+struct MapView_Previews: PreviewProvider {
+    static var previews: some View {
+        MapView(coordinate: CLLocationCoordinate2D(latitude: 34.011_286, longitude: -116.166_868))
+    }
+}
+```
+
+<br>
+
+- LandmarkDetail에 landmark 변수를 통해 현재 선택된 장소의 이미지와 지도뷰를 보여주고, Text를 현재 장소의 정보로 업데이트
+
+> LandmarkDetail.swift
+```Swift
+struct LandmarkDetail: View {
+    
+    var landmark: Landmark
+    
+    var body: some View {
+        ScrollView {
+            MapView(coordinate: landmark.locationCoordinate)
+                .ignoresSafeArea(edges: .top)
+                .frame(height: 300)
+            
+            CircleImage(image: landmark.image)
+                .offset(y: -130)
+                .padding(.bottom, -130)
+            
+            VStack(alignment: .leading) {
+                
+                Text(landmark.name)
+                    .font(.title)
+                HStack {
+                    Text(landmark.park)
+                    Spacer()
+                    Text(landmark.state)
+                }
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                
+                Divider()
+
+                Text("About \(landmark.name)")
+                    .font(.title2)
+                Text(landmark.description)
+            }
+            .padding()
+        }
+        .navigationTitle(landmark.name)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct LandmarkDetail_Previews: PreviewProvider {
+    static var previews: some View {
+        LandmarkDetail(landmark: landmarks[0])
+    }
+}
+```
+<br>
+
+> LandmarkList.swift
+```Swift
+struct LandmarkList: View {
+    var body: some View {
+            ...
+                NavigationLink {
+                    LandmarkDetail(landmark: landmark)
+                ...
+}
+```
+
+<br>
+
+### Section 8 - Generate Previews Dynamically
+
+- 다양한 기기 크기에서 list view의 미리보기를 렌더링
+
+- Within the list preview, embed the LandmarkList in a ForEach instance, using an array of device names as the data.
+  <br>-<br>
+  list preview 내에서 기기 이름 배열을 데이터로 사용하여 ForEach 인스턴스에 LandmarkList를 포함합니다.
+<br>
+
+- ForEach operates on collections the same way as the list, which means you can use it anywhere you can use a child view, such as in stacks, lists, groups, and more. When the elements of your data are simple value types — like the strings you’re using here — you can use \.self as key path to the identifier.
+  <br>-<br>
+  ForEach는 목록과 동일한 방식으로 컬렉션에서 작동하므로 스택, 목록, 그룹 등과 같이 자식 보기를 사용할 수 있는 모든 곳에서 사용할 수 있습니다. 데이터의 요소가 여기에서 사용하는 문자열과 같은 단순한 값 유형인 경우 \.self를 식별자의 키 경로로 사용할 수 있습니다.
+
+> LandmarkList.swift
+```Swift
+struct LandmarkList_Previews: PreviewProvider {
+    static var previews: some View {
+        ForEach(["iPhone SE (2nd generation)", "iPhone XS Max"], id: \.self) { deviceName in
+            LandmarkList()
+                .previewDevice(PreviewDevice(rawValue: deviceName))
+                .previewDisplayName(deviceName)
         }
     }
 }
