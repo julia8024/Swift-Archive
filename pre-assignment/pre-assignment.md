@@ -21,7 +21,9 @@
   &emsp;&emsp;[Section 6 - Set Up Navigation Between List and Detail](#section-6---set-up-navigation-between-list-and-detail)<br>
   &emsp;&emsp;[Section 7 - Pass Data into Child Views](#section-7---pass-data-into-child-views)<br>
   &emsp;&emsp;[Section 8 - Generate Previews Dynamically](#section-8---generate-previews-dynamically)<br>
-  
+
+[Handling User Input](#-handling-user-input)<br>
+   &emsp;&emsp;[Section 1 - Mark the User’s Favorite Landmarks](#section-1---mark-the-users-favorite-landmarks)<br>
 <hr>
 <br>
 
@@ -176,6 +178,8 @@ struct ContentView: View {
     }
 }
 ```
+
+<br>
 
 ## 👩🏻‍💻 Building Lists and Navigation
 
@@ -657,6 +661,53 @@ struct LandmarkList_Previews: PreviewProvider {
             LandmarkList()
                 .previewDevice(PreviewDevice(rawValue: deviceName))
                 .previewDisplayName(deviceName)
+        }
+    }
+}
+```
+
+<br>
+
+## 👩🏻‍💻 Handling User Input
+
+### Section 1 - Mark the User’s Favorite Landmarks
+- Landmark.swift에 isFavorite 변수를 추가하고, LandmarkRow.swift에 isFavorite이 true인 경우 노란색 별이 보여지게 함
+<br>
+<img width="300" alt="스크린샷 2023-07-21 오후 1 47 02" src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/d0eb997f-e86a-45bb-9f17-15238ca00afa">
+
+> Landmark.swift
+```Swift
+struct Landmark: Codable, Hashable, Identifiable {
+    var id: Int
+    var name: String
+    var park: String
+    var state: String
+    var description: String
+    var isFavorite: Bool
+
+    ...
+}
+```
+
+> LandmarkRow.swift
+```Swift
+struct LandmarkRow: View {
+    
+    var landmark: Landmark
+    
+    var body: some View {
+        HStack {
+            landmark.image
+                .resizable()
+                .frame(width: 50, height: 50)
+            Text(landmark.name)
+
+            Spacer()
+            
+            if landmark.isFavorite {
+                Image(systemName: "star.fill")
+                    .foregroundColor(.yellow)
+            }
         }
     }
 }
