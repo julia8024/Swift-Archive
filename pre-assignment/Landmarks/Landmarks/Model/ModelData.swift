@@ -6,8 +6,13 @@
 //
 
 import Foundation
+import Combine
 
-var landmarks: [Landmark] = load("landmarkData.json")
+
+final class ModelData: ObservableObject {
+    @Published var landmarks: [Landmark] = load("landmarkData.json")
+}
+
 
 // 주어진 이름으로 JSON 데이터를 가져오는 메서드
 func load<T: Decodable>(_ filename: String) -> T {
