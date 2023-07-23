@@ -24,6 +24,11 @@
 
 [Handling User Input](#-handling-user-input)<br>
    &emsp;&emsp;[Section 1 - Mark the User’s Favorite Landmarks](#section-1---mark-the-users-favorite-landmarks)<br>
+   &emsp;&emsp;[Section 2 - Filter the List View](#section-2---filter-the-list-view)<br>
+   &emsp;&emsp;[Section 3 - Add a Control to Toggle the State](#section-3---add-a-control-to-toggle-the-state)<br>
+   &emsp;&emsp;[Section 4 - Use an Observable Object for Storage](#section-4---use-an-observable-object-for-storage)<br>
+   &emsp;&emsp;[Section 5 - Adopt the Model Object in Your Views](#section-5---adopt-the-model-object-in-your-views)<br>
+   &emsp;&emsp;[Section 6 - Create a Favorite Button for Each Landmark](#section-6---create-a-favorite-button-for-each-landmark)<br>
 <hr>
 <br>
 
@@ -712,3 +717,137 @@ struct LandmarkRow: View {
     }
 }
 ```
+<br>
+
+### Section 2 - Filter the List View
+- LandmarkList.swift에 `@State` 변수로 showFavoritesOnly를 추가
+- filteredLandmarks : showFavoritesOnly 속성과 각 Landmark.isFavorite 값을 확인하여 랜드마크 목록의 필터링된 버전 계산
+<br> 
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/b64d70af-05b8-419a-abd6-f1697c4441fd" width="20%">
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/a62357ab-a174-4965-8716-8f180a826aea" width="20%">
+
+- LEFT : showFavoratesOnly = false
+- RIGHT : showFavorateOnly = true
+<br>
+
+> LandmarkList.swift
+```Swift
+struct LandmarkList: View {
+    
+    @State private var showFavoritesOnly = true
+    
+    var filteredLandmarks: [Landmark] {
+        landmarks.filter { landmark in
+            (!showFavoritesOnly || landmark.isFavorite)
+        }
+    }
+
+    
+    var body: some View {
+        NavigationView {
+            List(filteredLandmarks, id: \.id) { landmark in
+                NavigationLink {
+                    LandmarkDetail(landmark: landmark)
+                } label: {
+                    LandmarkRow(landmark: landmark)
+                }
+            }
+        }
+        .navigationTitle("Landmarks")
+    }
+}
+
+struct LandmarkList_Previews: PreviewProvider {
+    static var previews: some View {
+        LandmarkList()
+    }
+}
+```
+<br>
+
+### Section 3 - Add a Control to Toggle the State
+- 토클 버튼으로 `전체보기`와 `좋아요한 목록만 보기` 전환
+
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/3562351d-58f3-4347-aa7d-e1e06c9639fa" width="20%">
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/24969504-7f60-4d72-8afd-1f03b3e909b3" width="20%">
+<br><br>
+
+> LandmarkList.swift
+```Swift
+struct LandmarkList: View {
+
+    // false로 초기화
+    @State private var showFavoritesOnly = false
+    
+    var filteredLandmarks: [Landmark] {
+        landmarks.filter { landmark in
+            (!showFavoritesOnly || landmark.isFavorite)
+        }
+    }
+
+    
+    var body: some View {
+        NavigationView {
+            // 리스트 안에 토글 버튼 추가
+            // Landmark 리스트는 ForEach로 보여지게 하기
+            List {
+                Toggle(isOn: $showFavoritesOnly) {
+                    Text("Favorites only")
+                }
+                ForEach(filteredLandmarks) { landmark in
+                    NavigationLink {
+                        LandmarkDetail(landmark: landmark)
+                    } label: {
+                        LandmarkRow(landmark: landmark)
+                    }
+                }
+            }
+        }
+        .navigationTitle("Landmarks")
+    }
+}
+```
+<br>
+
+### Section 4 - Use an Observable Object for Storage
+
+- Declare a new model type that conforms to the ObservableObject protocol from the Combine framework.
+  <br>-<br>
+  Combine 프레임워크에서 ObservableObject 프로토콜을 준수하는 새 모델 유형을 선언합니다.
+
+```Swift
+import Combine
+
+final class ModelData: ObservableObject {
+}
+```
+<br>
+
+- SwiftUI subscribes to your observable object, and updates any views that need refreshing when the data changes.
+  <br>-<br>
+  SwiftUI는 관찰 가능한 객체를 구독하고 데이터가 변경될 때 새로 고쳐야 하는 모든 보기를 업데이트합니다.
+<br>
+
+- An observable object needs to publish any changes to its data, so that its subscribers can pick up the change.
+  <br>-<br>
+  Observable 객체는 구독자가 변경 사항을 선택할 수 있도록 데이터 변경 사항을 게시해야 합니다.
+```Swift
+// @Published 속성 추가
+@Published var landmarks: [Landmark] = load("landmarkData.json")
+```
+<br>
+
+> ModelData.swift
+```Swift
+import Combine
+
+final class ModelData: ObservableObject {
+    @Published var landmarks: [Landmark] = load("landmarkData.json")
+}
+```
+<br>
+
+### Section 5 - Adopt the Model Object in Your Views
+
+
+### Section 6 - Create a Favorite Button for Each Landmark
