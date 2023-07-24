@@ -679,6 +679,7 @@ struct LandmarkList_Previews: PreviewProvider {
 - Landmark.swift에 isFavorite 변수를 추가하고, LandmarkRow.swift에 isFavorite이 true인 경우 노란색 별이 보여지게 함
 <br>
 <img width="300" alt="스크린샷 2023-07-21 오후 1 47 02" src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/d0eb997f-e86a-45bb-9f17-15238ca00afa">
+<br>
 
 > Landmark.swift
 ```Swift
@@ -693,6 +694,7 @@ struct Landmark: Codable, Hashable, Identifiable {
     ...
 }
 ```
+<br>
 
 > LandmarkRow.swift
 ```Swift
@@ -848,6 +850,162 @@ final class ModelData: ObservableObject {
 <br>
 
 ### Section 5 - Adopt the Model Object in Your Views
+- The modelData property gets its value automatically, as long as the environmentObject(_:) modifier has been applied to a parent.
+  <br>-<br>
+  modelData 속성은 environmentObject( _:) 수정자가 부모에 적용되는 한 자동으로 값을 가져옵니다.
+<br>
 
+> LandmarkList.swift
+```Swift
+struct LandmarkList: View {
+    
+    @EnvironmentObject var modelData: ModelData
+    @State private var showFavoritesOnly = false
+    
+    var filteredLandmarks: [Landmark] {
+        modelData.landmarks.filter { landmark in
+            (!showFavoritesOnly || landmark.isFavorite)
+        }
+    }
+  ...
+}
+
+struct LandmarkList_Previews: PreviewProvider {
+    static var previews: some View {
+        LandmarkList()
+            .environmentObject(ModelData())
+    }
+}
+```
+<br>
+
+> LandmarkDetail.swift
+```Swift
+struct LandmarkDetail_Previews: PreviewProvider {
+    static var previews: some View {
+        LandmarkDetail(landmark: ModelData().landmarks[0])
+    }
+}
+```
+<br>
+
+> LandmarkRow.swift
+```Swift
+struct LandmarkRow_Previews: PreviewProvider {
+    
+    static var landmarks = ModelData().landmarks
+    
+    static var previews: some View {
+        Group {
+            LandmarkRow(landmark: landmarks[0])
+            LandmarkRow(landmark: landmarks[1])
+        }
+        .previewLayout(.fixed(width: 300, height: 70))
+    }
+}
+```
+<br>
+
+> ContentView.swift
+```Swift
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .environmentObject(ModelData())
+    }
+}
+```
+<br>
 
 ### Section 6 - Create a Favorite Button for Each Landmark
+- FavoriteButton.swift를 새로 생성
+<br>
+
+> FavoriteButton.swift
+```Swift
+struct FavoriteButton: View {
+    @Binding var isSet: Bool
+
+    var body: some View {
+        Button {
+            isSet.toggle()
+        } label: {
+            Label("Toggle Favorite", systemImage: isSet ? "star.fill" : "star")
+                .labelStyle(.iconOnly)
+                .foregroundColor(isSet ? .yellow : .gray)
+        }
+    }
+}
+
+struct FavoriteButton_Previews: PreviewProvider {
+    static var previews: some View {
+        FavoriteButton(isSet: .constant(true))
+    }
+}
+```
+<br>
+
+- Helpers 그룹을 만들어서 파일 정리
+<img width="270" alt="스크린샷 2023-07-24 오후 8 48 11" src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/1ebfcbc3-5c1a-4e72-9dc9-8729ee7cd443">
+<br><br>
+
+- LandmarkDetail.swift에 Favorite 버튼 추가
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/5c12b993-1052-44bc-a864-9400945f0229" width="20%">
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/ca58a83b-7c2d-477e-b765-7ec41ba9fa12" width="20%">
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/60dc50fb-7dfc-404d-8977-5aa79eb7eba6" width="20%">
+<img src="https://github.com/julia8024/pre-onboarding-iOS-challenge-Aug/assets/79641953/041211b4-4f6c-4d9e-aeb3-1572d5d0eed2" width="20%">
+
+<br><br>
+
+> LandmarkDetail.swift
+```Swift
+struct LandmarkDetail: View {
+    @EnvironmentObject var modelData: ModelData
+    var landmark: Landmark
+    
+    var landmarkIndex: Int {
+        modelData.landmarks.firstIndex(where: { $0.id == landmark.id })!
+    }
+
+    var body: some View {
+        ScrollView {
+          ...
+          VStack(alignment: .leading) {
+                
+              HStack {
+                 Text(landmark.name)
+                     .font(.title)
+                 FavoriteButton(isSet: $modelData.landmarks[landmarkIndex].isFavorite)
+             }
+            ...
+        }
+  ...
+}
+
+struct LandmarkDetail_Previews: PreviewProvider {
+    static let modelData = ModelData()
+
+    static var previews: some View {
+        LandmarkDetail(landmark: modelData.landmarks[0])
+            .environmentObject(modelData)
+    }
+}
+```
+<br>
+
+> LandmarkApp.swift
+```Swift
+import SwiftUI
+
+@main
+struct LandmarksApp: App {
+    @StateObject private var modelData = ModelData()
+    
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environmentObject(modelData)
+        }
+    }
+}
+```
